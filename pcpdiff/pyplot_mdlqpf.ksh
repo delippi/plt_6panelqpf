@@ -64,6 +64,9 @@ for exp in $exps; do
       
       if [ ! -s ${gbfile[${i}]} ]; then
          htar -xvf /NCEPDEV/emc-meso/5year/Donald.E.Lippi/nwrw_${exp}/rh${yyyy}/${yyyy}${mm}/${PDY}/scratch4_NCEPDEV_meso_noscrub_Donald.E.Lippi_com_namrr_rw_${exp}_namrr.${PDY}${cyc}.conusnest.tar ./${gbfile[${i}]} 
+         if [ ! -s ${gbfile[${i}]} ]; then # Try WCOSS
+            htar -xvf /NCEPDEV/emc-meso/5year/Donald.E.Lippi/nwrw_${exp}/rh${yyyy}/${yyyy}${mm}/${PDY}/meso2_noscrub_Donald.E.Lippi_com_namrr_rw_${exp}_namrr.${PDY}${cyc}.conusnest.tar ./${gbfile[${i}]} 
+         fi
       #/NCEPDEV/emc-meso/5year/Donald.E.Lippi/nwrw_002/rh2015/201510/20151030/
       #scratch4_NCEPDEV_meso_noscrub_Donald.E.Lippi_com_namrr_002_namrr.2015103018.conusnest.tar
       # ./namrr.t${cyc}z.conusnest.hiresf.tm00.grib2 

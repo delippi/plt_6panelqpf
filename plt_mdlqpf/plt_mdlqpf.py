@@ -49,7 +49,8 @@ if __name__ == '__main__':
       #Get the date/time and forecast hour
       fhr[i]=grbs[i][1]['stepRange'] # Forecast hour
       # Pad fhr with a 0
-      if int(fhr[i]) < 10:
+      #if int(fhr[i]) < 10: # lippi removed Feb 7, 2018
+      if fhr[i] < 10:
         fhr[i]='0'+fhr[i]
       cyctime[i]=grbs[i][1].dataTime #Cycle (e.g. 1200 UTC)
  
@@ -77,6 +78,8 @@ if __name__ == '__main__':
   precip_vals   = ["" for x in range(num)]
   precipOBS     = ["" for x in range(num)]
   precipOBSvals = ["" for x in range(num)]
+  bucket_length=3
+
   for i in range(num):
       precip[i] = grbs[i].select(name='Total Precipitation',lengthOfTimeRange=bucket_length)[0] # QPF is stored as mm 
       precipOBS[i] = obs[i].select(name='Total Precipitation')[0] # QPF is stored as mm 
@@ -167,20 +170,26 @@ if __name__ == '__main__':
     keep_ax_lst = ax.get_children()[:]
 
 
-    #Now plot REFC dBZ
     # Set contour levels for precip    
     #  clevs = [0,0.1,2,5,10,15,20,25,35,50,75,100,125,150,175]  #mm
     clevs   =[0.01,0.05,0.1,0.25,0.5,0.75,1.,1.5,2.,3.,4.,5.,6.,7.] #inches
-    #clevsOBS=[0.75,4.]
     #Now plot the precip
     cs1 = m.contourf(lons,lats,precip_vals,clevs,latlon=True,colors=pcolors,extend='max')
+
+
+
+
+
+
+
+    # add colorbar.
+    cbar = m.colorbar(cs1,location='bottom',pad="5%",ticks=clevs,format='%.2f')
+    cbar.set_label('inches')
+    cbar.ax.tick_params(labelsize=8.5)
+
     if(OB_lines): 
       cs2=m.contour(lonsOBS,latsOBS,precipOBSvals,clevsOBS,colors='black',latlon=True,linewidths=4.0) 
       plt.clabel(cs2, fontsize=11, inline=1)
-    # add colorbar.
-    cbar = m.colorbar(cs1,location='bottom',pad="5%",ticks=clevs,format='%.2f')
-    cbar.ax.tick_params(labelsize=8.5)
-    cbar.set_label('inches')
     plt.title(name+' CONUSNEST '+str(maxhr).zfill(2)+' Hr QPF at F'+str(hr)+' \n'+\
               repr(date[0])+' '+grbtime[0]+'Z cycle Valid '+valpdy+' '+valcyc+\
               '00Z',fontsize='18',weight='bold')

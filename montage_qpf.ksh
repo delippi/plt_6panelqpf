@@ -4,7 +4,9 @@ export ndate=/home/Donald.E.Lippi/bin/ndate
 . setup.ksh
 
 cd ${scp_figs_dir}/figs/scp_figs/
-
+#typeset -Z2 cyc 
+#typeset -Z2 fhr 
+#typeset -Z8 PDY 
 #### FROM SETUP KSH ###############
 field=$field                      #
 PDY=$date                         #

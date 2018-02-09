@@ -87,6 +87,9 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(11,11))
     ax = fig.add_axes([0.1,0.1,0.8,0.8])
     
+    parallels = np.arange(26.,90,4.)
+    meridians = np.arange(0.,360.,4.)
+ 
     # create LCC basemap instance and set the dimensions
     llcrnrlon,llcrnrlat,urcrnrlon,urcrnrlat,res=ncepy.corners_res(dom)    
     if(dom == 'SC1'):
@@ -98,14 +101,14 @@ if __name__ == '__main__':
     if(dom == 'SC4'):
        llcrnrlon,llcrnrlat,urcrnrlon,urcrnrlat=-104.0,28.0,-92.0,35.0
        #llcrnrlon,llcrnrlat,urcrnrlon,urcrnrlat=-102.0,26.0,-92.0,33.0
+       parallels = np.arange(30.,90,2.)
+       meridians = np.arange(0.,360.,2.)
 
     m = Basemap(llcrnrlon=llcrnrlon,llcrnrlat=llcrnrlat,urcrnrlon=urcrnrlon,urcrnrlat=urcrnrlat,\
    	      rsphere=(6378137.00,6356752.3142),\
    	      resolution=res,projection='lcc',\
    	      lat_1=25.0,lon_0=-95.0,ax=ax)
 
-    parallels = np.arange(30.,90,2.)
-    meridians = np.arange(0.,360.,2.)
     m.drawmapboundary(fill_color='#7777ff')
     m.fillcontinents(color='#ddaa66', lake_color='#7777ff', zorder = 0)
     m.drawcoastlines(linewidth=1.25)
@@ -138,8 +141,18 @@ if __name__ == '__main__':
     gemlist = ncepy.gem_color_list()
     pcplist=[23,22,21,20,19,10,17,16,15,14,29,28,24,25]
     pcolors=[gemlist[i] for i in pcplist]
-    
     cs = m.contourf(lons,lats,qpf,clevs,colors=pcolors,latlon=True,extend='max')
+    #indices = np.where(precip_vals == precip_vals.max())
+    #x_y_coords = zip(indices[0],indices[1])
+    #ymax,xmax=x_y_coords[0][0],x_y_coords[0][1]
+    #latmax=lats[xmax,ymax]
+    #lonmax=lons[xmax,ymax]
+    #xmax,ymax=m(lonmax,latmax)
+    #m.plot(xmax,ymax,'ro',markersize=6)
+    #print(precip_vals.argmax())
+    #print(np.max(precip_vals))
+    #label=str(np.max(precip_vals))
+    #plt.text(xmax+2000, ymax+2000, label,fontsize=13.0)
     if(OB_lines): m.contour(lons,lats,qpf,clevsOBS,colors='black',latlon=True,linewidths=4.0)
     cs.set_clim(5,75) 
     cbar = m.colorbar(cs,location='bottom',pad="5%",ticks=clevs)

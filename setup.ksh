@@ -1,26 +1,30 @@
 #!/bin/ksh
+#set -x
 echo
 echo "This is the beginning of setup."
 export ndate=/home/Donald.E.Lippi/bin/ndate
 
+typeset -Z2 cyc 
 ################# USER INPUT! #############################
 # FILEDS: 1) refc, 2) 06hrpcp, 3) 3hrpcp                 ##
 export type='qpf'                                        ##
 export date=20151030                                     ##
-export cyc=12                                            ##
-export fhr=09 # fhr=06 for '06hrpcp'                     ##
-export field="09hrpcp"                                   ##
-Cn0='Control';     C0='c003' #c002,c003                  ## 
-Xn1='w_only';      X1=010   #003,010                     ##
-#Xn2='w_so_elev5';  X2=011   #008,011                     ##
-#Xn3='w_so_elev10'; X3=012   #006,012                     ##
-#Xn4='so_elev10';   X4=013   #009,013                     ##
+export cyc=18                                            ##
+export fhr=18 # fhr=06 for '06hrpcp'                     ##
+export field="18hrpcp"                                   ##
+Cn0='Control';     C0='c008' #c002,c003,c007,c008    ## 
+Xn1='w_only';      X1=019   #003,010,013,020 ,019    ##
+Xn2='w_so_elev5';  X2=021   #008,011,014,    ,021    ##
+Xn3='w_so_elev10'; X3=022   #006,012,015(017),022    ##
+Xn4='so_elev10';   X4=023   #009,016,018     ,023    ##
 charmax=15 #must be bigger than experiment names         ##
-export dom='SC4'                                         ##
+export dom='SC4' # vi ./plt_obsqpf/plt_obsqpf.py         ##
 export clevsOBS="0.01,0.75,4.0"      # no spaces         ##
-export OB_lines=.true. # .true. if you want ob contours  ####################################
-export diff=.true.   # compute pcp difference plots, if true                               ##
-export diff_grid="_g221" # the NCEP grid in which the difference is to be computed  _g221  ##
+export OB_lines=.true. # .true. if you want ob contours ####################################
+export diff=.false.   # compute pcp difference plots, if true                              ##
+#export diff_grid="_g221" # the NCEP grid in which the difference is to be computed  _g221  ##
+#export diff_grid="_g227" # the NCEP grid in which the difference is to be computed  _g221  ##
+export diff_grid="_3km" # the NCEP grid in which the difference is to be computed  _g221  ##
 export plt_obs_dir=/home/Donald.E.Lippi/plotting/python/plt_6panel${type}/plt_obs${type}/  ##
 export plt_mdl_dir=/home/Donald.E.Lippi/plotting/python/plt_6panel${type}/plt_mdl${type}/  ##
 export plt_pcp_dif=/home/Donald.E.Lippi/plotting/python/plt_6panel${type}/plt_diff${type}/ ##
@@ -40,6 +44,9 @@ if [[ $fhr -ne $f ]]; then
    exit
 fi
 
+#typeset -Z10 ymdhcyc 
+#typeset -Z8 vymdh 
+#typeset -Z8 PDY 
 export ymdhcyc=${date}${cyc}
 export vymdh=`${ndate} +${fhr} ${ymdhcyc}`
 export PDY=`echo $vymdh | cut -c 1-8`
@@ -100,11 +107,19 @@ echo "exps array: $exps_gen" #debug
 i=0
 for exp in $exps; do
    if [[ $i -eq 0 ]]; then
-      #echo "ctl$i=${FIGDIR}/pyplot_nest_rw_${C0}.${date}/${field}_${dom}_${C0}_${ymdhcyc}00v${vymdh}.png"
-      export eval "ctl$i=${FIGDIR}/pyplot_nest_rw_${C0}.${date}/${field}_${dom}_${C0}_${ymdhcyc}00v${vymdh}.png"
+      if [[ $cyc -eq 0 ]]; then
+         #echo "ctl$i=${FIGDIR}/pyplot_nest_rw_${C0}.${date}/${field}_${dom}_${C0}_${ymdhcyc}00v${vymdh}.png"
+         export eval "ctl$i=${FIGDIR}/pyplot_nest_rw_${C0}.${date}/${field}_${dom}_${C0}_${ymdhcyc}v${vymdh}.png"
+      else
+         export eval "ctl$i=${FIGDIR}/pyplot_nest_rw_${C0}.${date}/${field}_${dom}_${C0}_${ymdhcyc}00v${vymdh}.png"
+      fi
    else
       eval "X=\$X$i"
-      export eval "exp$i=${FIGDIR}/pyplot_nest_rw_${X}.${date}/${field}_${dom}_${X}_${ymdhcyc}00v${vymdh}.png" 
+      if [[ $cyc -eq 0 ]]; then
+         export eval "exp$i=${FIGDIR}/pyplot_nest_rw_${X}.${date}/${field}_${dom}_${X}_${ymdhcyc}v${vymdh}.png" 
+      else
+         export eval "exp$i=${FIGDIR}/pyplot_nest_rw_${X}.${date}/${field}_${dom}_${X}_${ymdhcyc}00v${vymdh}.png" 
+      fi
    fi
    ((i=i+1))
 done

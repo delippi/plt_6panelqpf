@@ -7,7 +7,6 @@ import ncepy
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap, cm
 import time
-#import colormap
 import sys 
 
 if __name__ == '__main__':
@@ -27,7 +26,6 @@ if __name__ == '__main__':
   maxhr=sys.argv[6]
   clOBS=sys.argv[7].split(","); clevsOBS = [float(i) for i in clOBS]
   OB_lines=sys.argv[8]; OB_lines=(True if OB_lines == '.true.' else False)
-  #OB_lines=False #no need for these here...
   num=int(maxhr)/3
   gribfile = ["" for x in range(num)]
   grbs     = ["" for x in range(num)]
@@ -51,7 +49,8 @@ if __name__ == '__main__':
       #Get the date/time and forecast hour
       fhr[i]=grbs[i][1]['stepRange'] # Forecast hour
       # Pad fhr with a 0
-      if int(fhr[i]) < 10:
+      #if int(fhr[i]) < 10: # removed this line Feb 5, 2018
+      if fhr[i] < 10:
         fhr[i]='0'+fhr[i]
       cyctime[i]=grbs[i][1].dataTime #Cycle (e.g. 1200 UTC)
  
@@ -82,7 +81,7 @@ if __name__ == '__main__':
   bucket_length=3
 
   for i in range(num):
-      precip[i] = grbs[i].select(name='Total Precipitation',lengthOfTimeRange=3)[0] # QPF is stored as mm 
+      precip[i] = grbs[i].select(name='Total Precipitation',lengthOfTimeRange=bucket_length)[0] # QPF is stored as mm 
       precipOBS[i] = obs[i].select(name='Total Precipitation')[0] # QPF is stored as mm 
       #Now get the values from this msg
       precip_vals[i] = precip[i].values/25.4
@@ -94,7 +93,7 @@ if __name__ == '__main__':
           precip_vals=precip_vals[i]
           precipOBSvals=precipOBSvals[i]
 
-  diff=precip_vals-precipOBSvals
+  diff=precip_vals -precipOBSvals
   t2a=time.clock()
   t3a=round(t2a-t1a, 3)
   print(repr(t3a)+" seconds to read all gribs msgs!")
@@ -106,16 +105,9 @@ if __name__ == '__main__':
   #Use gempak color table for precipitation    
   gemlist=ncepy.gem_color_list()
   # Use gempak fline color levels from pcp verif page
-  #pcplist=[23,22,21,20,19,10,17,16,15,14,29,28,24,25]
+  pcplist=[23,22,21,20,19,10,17,16,15,14,29,28,24,25]
   #Extract these colors to a new list for plotting
-  #pcolors=[gemlist[i] for i in pcplist]
-#  clevspos =[0.01,0.05,0.1,0.25,0.5,0.75,1.,1.5,2.,3.,4.]
-#  pcplist  =[  23,  22, 21,  20, 19,  10,17, 16,15,14,29]
-#  pcolorspos=[gemlist[i] for i in pcplist]
-#  clevsneg =[-4.,-3.,-2.,-1.5,-1.,-0.75,-0.5,-0.25,-0.1,-0.05,-0.01]
-#  pcplist  =[ 31,    7, 12, 14,  30, 29,   28,  27,   26,  25,   24]
-#  pcolorsneg=[gemlist[i] for i in pcplist]
-     
+  pcolors=[gemlist[i] for i in pcplist]
 
   for dom in domains:
     t1dom=time.clock()
@@ -179,46 +171,26 @@ if __name__ == '__main__':
     keep_ax_lst = ax.get_children()[:]
 
 
-    #Now plot REFC dBZ
     # Set contour levels for precip    
     #  clevs = [0,0.1,2,5,10,15,20,25,35,50,75,100,125,150,175]  #mm
     #clevs   =[0.01,0.05,0.1,0.25,0.5,0.75,1.,1.5,2.,3.,4.,5.,6.,7.] #inches
-    #clevsOBS=[0.75,4.]
     #Now plot the precip
     #Use gempak color table for precipitation    
     gemlist=ncepy.gem_color_list()
-    make_diff_plot1=False
-    make_diff_plot2=True 
-    if(make_diff_plot1):
-      gemlist=ncepy.gem_color_list()
-      clevspos =[0.01,0.05,0.1,0.25,0.5,0.75,1.,1.5,2.,3.,4.]
-      pcplist  =[  23,  22, 21,  20, 19,  10,17, 16,15,14,29]
-      pcolorspos=[gemlist[i] for i in pcplist]
-      clevsneg =[-4.,-3.,-2.,-1.5,-1.,-0.75,-0.5,-0.25,-0.1,-0.05,-0.01]
-      pcplist  =[ 31, 7,  12,  14, 30,   29,  28,   27,  26,   25,   24]
-      pcolorsneg=[gemlist[i] for i in pcplist]
-      cspos = m.contourf(lons,lats,diff,clevspos,latlon=True,colors=pcolorspos,extend='max')
-      csneg = m.contourf(lons,lats,diff,clevsneg,latlon=True,colors=pcolorsneg,extend='min')
-      cbarpos = m.colorbar(cspos,location='bottom',pad="25%",ticks=clevspos)#,format='%.2f')
-      cbarneg = m.colorbar(csneg,location='bottom',pad="5%",ticks=clevsneg)#,format='%.2f')
-      cbarpos.ax.tick_params(labelsize=8.5)
-      cbarneg.ax.tick_params(labelsize=8.5)
-      cbarpos.set_label('inches')
-
-    if(make_diff_plot2):
-      cmap = plt.get_cmap(name='RdBu_r')
-      #cmap = colormap.diff_colormap(clevs)
-      #clevs = [-4.,-3.,-2.,-1.5,-1.,-0.75,-0.5,-0.25,-0.1,-0.05,-0.01,0.00,0.01,0.05,0.1,0.25,0.5,0.75,1.,1.5,2.,3.,4.]
-      clevs = [-4.,-3.,-2.,-1.5,-1.,-0.75,-0.5,-0.25,-0.1,-0.05,0.05,0.1,0.25,0.5,0.75,1.,1.5,2.,3.,4.]
-      cs = m.contourf(lons,lats,diff,clevs,latlon=True,cmap=cmap,linewidths=4.0,extend='both')
-      cbar = m.colorbar(cs,location='bottom',pad="5%",ticks=clevs)
-      #cbar.ax.set_xticklabels(clevs,rotation=90)
-      cbar.ax.tick_params(labelsize=8.5)
+    cmap = plt.get_cmap(name='RdBu_r')
+    #clevs = [-4.,-3.,-2.,-1.5,-1.,-0.75,-0.5,-0.25,-0.1,-0.05,-0.01,0.00,0.01,0.05,0.1,0.25,0.5,0.75,1.,1.5,2.,3.,4.]
+    #clevs = [-4.,-3.,-2.,-1.5,-1.,-0.75,-0.5,-0.25,-0.1,-0.05,0.05,0.1,0.25,0.5,0.75,1.,1.5,2.,3.,4.]
+    #clevs = [-7.,-6.,-5.,-4.,-3.,-2.,-1.5,-1.,-0.75,-0.5,-0.25,-0.1,-0.05,0.05,0.1,0.25,0.5,0.75,1.,1.5,2.,3.,4.,5.,6.,7.]
+    clevs = [-7.,-6.,-5.,-4.,-3.,-2.,-1.5,-1.,-0.75,-0.5,-0.25,0.25,0.5,0.75,1.,1.5,2.,3.,4.,5.,6.,7.]
+    cs = m.contourf(lons,lats,diff,clevs,latlon=True,cmap=cmap,linewidths=4.0,extend='both')
+    #cs = m.contourf(lons,lats,diff,clevs,latlon=True,colors=pcolors,extend='max')
+    cbar = m.colorbar(cs,location='bottom',pad="5%",ticks=clevs,format='%.2f')
+    cbar.set_label('inches')
+    cbar.ax.tick_params(labelsize=8.5)
 
     if(OB_lines): 
       cs2=m.contour(lonsOBS,latsOBS,precipOBSvals,clevsOBS,colors='black',latlon=True,linewidths=4.0) 
       plt.clabel(cs2, fontsize=11, inline=1)
-
     plt.title(name+' CONUSNEST '+str(maxhr).zfill(2)+' Hr QPF Difference at F'+str(hr)+' \n'+\
               repr(date[0])+' '+grbtime[0]+'Z cycle Valid '+valpdy+' '+valcyc+\
               '00Z',fontsize='18',weight='bold')

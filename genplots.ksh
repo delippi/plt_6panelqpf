@@ -29,16 +29,16 @@ if [ $ans0 == 'n' ]; then
 fi
 
 echo "Step 1. Would you like to generate plots for observations (y/n)?"
-#read ans1
+read ans1
 
 echo "Step 2. Would you like to generate plots for experiments (y/n)?"
-#read ans2
+read ans2
 
 echo "Step 3. Would you like to put all figs in the scp directory (y/n)?"
-#read ans3
+read ans3
 
 echo "Setp 4. Would you like to generate a 6 panel fig (y/n)?"
-#read ans4
+read ans4
 
 
 if [ $ans1 == 'y' ]; then
